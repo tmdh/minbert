@@ -46,7 +46,7 @@ class BertSelfAttention(nn.Module):
     # multiply the attention scores to the value and get back V'
     # next, we need to concat multi-heads and recover the original shape [bs, seq_len, num_attention_heads * attention_head_size = hidden_size]
     # key, query, value (b, h, n, d/h)
-    att = (query @ key.transpose(-2, -1)) / torch.sqrt(torch.Tensor([self.attention_head_size], device=query.device)) # (b, h, n, n)
+    att = (query @ key.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.attention_head_size)) # (b, h, n, n)
     # attention_mask (b, 1, 1, n)
     bs, _, seq_len, _ = att.size()
     att = att + attention_mask

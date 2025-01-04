@@ -1,4 +1,4 @@
-# Project Status - Completed
+# Project Status - Implemented Sentiment Classification
 
 # CS 224N Default Final Project - Multitask BERT
 

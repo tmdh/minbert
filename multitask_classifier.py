@@ -14,6 +14,7 @@ from datasets import SentenceClassificationDataset, SentencePairDataset, \
     load_multitask_data, load_multitask_test_data
 
 from evaluation import model_eval_sst, test_model_multitask
+from tokenizer import BertTokenizer
 
 
 TQDM_DISABLE=True
@@ -52,7 +53,11 @@ class MultitaskBERT(nn.Module):
             elif config.option == 'finetune':
                 param.requires_grad = True
         ### TODO
-        raise NotImplementedError
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.dropout = nn.Dropout(self.config.hidden_dropout_prob)
+        self.sentiment_layer = nn.Linear(self.config.hidden_size, self.config.num_labels)
+        self.paraphrase_layer = nn.Linear(self.config.hidden_size, 1)
+        self.similarity_layer = nn.Linear(self.config.hidden_size, 1)
 
 
     def forward(self, input_ids, attention_mask):
@@ -62,7 +67,7 @@ class MultitaskBERT(nn.Module):
         # When thinking of improvements, you can later try modifying this
         # (e.g., by adding other layers).
         ### TODO
-        raise NotImplementedError
+        return self.bert(input_ids, attention_mask)['pooler_output']
 
 
     def predict_sentiment(self, input_ids, attention_mask):
@@ -72,7 +77,10 @@ class MultitaskBERT(nn.Module):
         Thus, your output should contain 5 logits for each sentence.
         '''
         ### TODO
-        raise NotImplementedError
+        x = self.forward(input_ids, attention_mask)
+        x = self.dropout(x)
+        x = self.sentiment_layer(x)
+        return x
 
 
     def predict_paraphrase(self,

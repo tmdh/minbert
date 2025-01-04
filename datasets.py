@@ -307,3 +307,18 @@ def load_multitask_data(sentiment_filename,paraphrase_filename,similarity_filena
     print(f"Loaded {len(similarity_data)} {split} examples from {similarity_filename}")
 
     return sentiment_data, num_labels, paraphrase_data, similarity_data
+
+from torch.utils.data import DataLoader
+
+if __name__ == "__main__":
+    sentiment_data, num_labels, paraphrase_data, similarity_data = load_multitask_data("data/ids-sst-train.csv", "data/quora-train.csv", "data/sts-train.csv")
+    paraphrase_data = SentencePairDataset(paraphrase_data, None)
+    loader = DataLoader(paraphrase_data, shuffle=True, batch_size=4,
+                                      collate_fn=paraphrase_data.collate_fn)
+    tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+    for d in loader:
+        input_ids_1 = d['token_ids_1']
+        input_ids_2 = d['token_ids_2']
+        sep_tokens = torch.ones(input_ids_1.shape[0], 1) * tokenizer.sep_token_id
+        print(torch.cat((input_ids_1, sep_tokens, input_ids_2, sep_tokens), dim=1))
+        break
